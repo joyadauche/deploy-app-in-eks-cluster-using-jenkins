@@ -31,6 +31,22 @@ pipeline {
                  }
             }
         }
-    }
+        stage('Deploy app to EKS cluster'){
+            when {
+              expression {
+                BRANCH_NAME == "master"
+              }
+            }
+            environment {
+              AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+              AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+            }
+            steps {
+               withKubeConfig([credentialsId: 'kubeconfig']) {
+                 sh "bash deploy.sh"
+               }
+            }
+        }
+}
 }
 
