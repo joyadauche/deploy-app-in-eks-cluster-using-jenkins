@@ -8,6 +8,17 @@ pipeline {
                 archive 'target/*.jar'
             }
         }
+         stage('Test app and publish coverage reports') {
+            steps {
+                sh "mvn test"
+            }
+            post {
+              always {
+                junit 'target/surefire-reports/*.xml'
+                jacoco execPattern: 'target/jacoco.exec'
+              }
+            }
+        }
     }
 }
 
