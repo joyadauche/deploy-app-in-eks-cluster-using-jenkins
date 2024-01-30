@@ -12,17 +12,19 @@ pipeline {
                 archive 'target/*.jar'
             }
         }
+
         stage('Test app and publish coverage reports') {
             steps {
                 sh "mvn test"
             }
-            post {
-              always {
-                junit 'target/surefire-reports/*.xml'
-                jacoco execPattern: 'target/jacoco.exec'
-              }
-            }
         }
+
+        stage('Vulnerability checks') {
+          steps {
+            sh "mvn dependency-check:check"
+          }
+        }
+
          stage('Build and push docker image') {
             steps {
                  withDockerRegistry([credentialsId: "docker-hub-repo"]) {
@@ -31,6 +33,7 @@ pipeline {
                  }
             }
         }
+
         stage('Deploy app to EKS cluster'){
             when {
               expression {
@@ -47,6 +50,14 @@ pipeline {
                }
             }
         }
-}
+    }
+
+     post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+          jacoco execPattern: 'target/jacoco.exec'
+          dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+        }
+     }
 }
 
