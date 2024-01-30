@@ -21,7 +21,14 @@ pipeline {
 
         stage('Vulnerability checks') {
           steps {
-            sh "mvn dependency-check:check"
+            parallel(
+              "Dependency scan": {
+                sh "mvn dependency-check:check"
+              },
+              "Trivy scan": {
+                sh "bash scan.sh"
+              }
+            )
           }
         }
 
