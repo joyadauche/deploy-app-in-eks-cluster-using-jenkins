@@ -27,6 +27,9 @@ pipeline {
               },
               "Trivy scan": {
                 sh "bash scan.sh"
+              },
+              "OPA Conftest": {
+                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-dockerfile.rego Dockerfile'
               }
             )
           }
