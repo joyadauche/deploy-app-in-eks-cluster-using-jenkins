@@ -15,9 +15,18 @@ spec:
       labels:
         app: jenkins-demo
     spec:
+      volumes:
+        - name: vol
+          emptyDir: { }
       containers:
         - image: placeholder-image
           name: jenkins-demo
+          volumeMounts:
+            - mountPath: /tmp
+              name: vol
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
 ---
 apiVersion: v1
 kind: Service
