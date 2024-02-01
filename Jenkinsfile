@@ -29,7 +29,7 @@ pipeline {
                 sh "bash scan.sh"
               },
               "OPA Conftest": {
-                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker.rego Dockerfile'
+                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker.rego $(pwd)/Dockerfile'
               }
             )
           }
