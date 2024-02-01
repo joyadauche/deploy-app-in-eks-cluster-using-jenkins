@@ -27,3 +27,4 @@ The sample Java application created here was based on the guide from [spring.io]
 # Run app locally
 - `mvn clean test` to execute tests
 - `mvn clean package` to build artefact (it also runs tests)
+- `./mvnw spring-boot:run` to run app
