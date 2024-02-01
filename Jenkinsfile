@@ -19,7 +19,7 @@ pipeline {
             }
         }
 
-        stage('Vulnerability checks') {
+        stage('Vulnerability checks - framework pacakges, docker image,') {
           steps {
             parallel(
               "Dependency scan": {
@@ -29,13 +29,13 @@ pipeline {
                 sh "bash scan.sh"
               },
               "OPA Conftest": {
-                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-dockerfile.rego Dockerfile'
+                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker.rego Dockerfile'
               }
             )
           }
         }
 
-         stage('Build and push docker image') {
+        stage('Build and push docker image') {
             steps {
                  withDockerRegistry([credentialsId: "docker-hub-repo"]) {
                       sh "docker build -t ${imageName} ."
