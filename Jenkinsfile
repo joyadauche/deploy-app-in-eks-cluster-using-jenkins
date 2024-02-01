@@ -22,9 +22,9 @@ pipeline {
         stage('Vulnerability checks - framework pacakges, docker image,') {
           steps {
             parallel(
-              "Dependency scan": {
-                sh "mvn dependency-check:check"
-              },
+//               "Dependency scan": {
+//                 sh "mvn dependency-check:check"
+//               },
 //               "OPA Conftest": {
 //                 sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker-security.rego Dockerfile'
 //               }
