@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine
+FROM openjdk:22-slim
 ARG JAR_FILE=target/*.jar
 RUN addgroup -S pipeline && adduser -S pipeline -G pipeline
 COPY ${JAR_FILE} /home/pipeline/app.jar

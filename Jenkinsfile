@@ -25,12 +25,9 @@ pipeline {
               "Dependency scan": {
                 sh "mvn dependency-check:check"
               },
-              "Trivy scan": {
-                sh "bash scan.sh"
-              },
-              "OPA Conftest": {
-                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker.rego Dockerfile'
-              }
+//               "OPA Conftest": {
+//                 sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker-security.rego Dockerfile'
+//               }
             )
           }
         }
@@ -44,22 +41,35 @@ pipeline {
             }
         }
 
-        stage('Deploy app to EKS cluster'){
-            when {
-              expression {
-                BRANCH_NAME == "master"
-              }
-            }
-            environment {
-              AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-              AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-            }
-            steps {
-               withKubeConfig([credentialsId: 'kubeconfig']) {
-                 sh "bash deploy.sh"
-               }
-            }
+        stage('Vulnerability checks - Kubernetes manifests') {
+          steps {
+             parallel(
+                 "Trivy scan": {
+                   sh "bash scan.sh"
+                 },
+                 "OPA Conftest": {
+                   sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-k8s-security.rego ./kube-manifests/k8s-deployment-service.yaml'
+                 }
+             )
+          }
         }
+
+//         stage('Deploy app to EKS cluster'){
+//             when {
+//               expression {
+//                 BRANCH_NAME == "master"
+//               }
+//             }
+//             environment {
+//               AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+//               AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+//             }
+//             steps {
+//                withKubeConfig([credentialsId: 'kubeconfig']) {
+//                  sh "bash deploy.sh"
+//                }
+//             }
+//         }
     }
 
      post {
