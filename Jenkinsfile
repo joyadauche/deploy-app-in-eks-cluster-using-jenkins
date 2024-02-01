@@ -19,18 +19,18 @@ pipeline {
             }
         }
 
-//         stage('Vulnerability checks - framework pacakges, docker image,') {
-//           steps {
-//             parallel(
-//               "Dependency scan": {
-//                 sh "mvn dependency-check:check"
-//               },
-//               "OPA Conftest": {
-//                 sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker-security.rego Dockerfile'
-//               }
-//             )
-//           }
-//         }
+        stage('Vulnerability checks - framework pacakges, docker image,') {
+          steps {
+            parallel(
+              "Dependency scan": {
+                sh "mvn dependency-check:check"
+              },
+              "OPA Conftest": {
+                sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-docker-security.rego Dockerfile'
+              }
+            )
+          }
+        }
 
         stage('Build and push docker image') {
             steps {
@@ -48,28 +48,28 @@ pipeline {
                    sh "bash scan.sh"
                  },
                  "OPA Conftest": {
-                   sh "bash opa-conftest-k8s.sh"
+                   sh 'docker run --rm -v $(pwd):/project openpolicyagent/conftest test --policy opa-k8s-security.rego kube-manifests/k8s-deployment-service.yaml'
                  }
              )
           }
         }
 
-//         stage('Deploy app to EKS cluster'){
-//             when {
-//               expression {
-//                 BRANCH_NAME == "master"
-//               }
-//             }
-//             environment {
-//               AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-//               AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-//             }
-//             steps {
-//                withKubeConfig([credentialsId: 'kubeconfig']) {
-//                  sh "bash deploy.sh"
-//                }
-//             }
-//         }
+        stage('Deploy app to EKS cluster'){
+            when {
+              expression {
+                BRANCH_NAME == "master"
+              }
+            }
+            environment {
+              AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+              AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+            }
+            steps {
+               withKubeConfig([credentialsId: 'kubeconfig']) {
+                 sh "bash deploy.sh"
+               }
+            }
+        }
     }
 
      post {
